@@ -1,4 +1,4 @@
-## R code for Analysis of Big Healthcare Databases exercises
+## R code for analysis of EHR data tutorials
 
 ##-------------------------------------------------------------##
 ## Read in data

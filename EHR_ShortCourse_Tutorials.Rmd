@@ -1,5 +1,5 @@
 ---
-title: "Analysis of Big Healthcare Databases - Tutorials"
+title: "Analysis of EHR data - Tutorials"
 output:
   html_document:
     toc: false 
