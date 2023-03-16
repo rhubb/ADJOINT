@@ -28,7 +28,7 @@ source(here("code","2_bcsc_simulation_funcn.R"))
 
 ## Run simulations
 
-NSIM <- 10 # number of simulations
+NSIM <- 10000 # number of simulations
 set.seed(727)
 
 model1 <- sim1_funcn(nrace = race_freq, Nsim = NSIM, sdoh_flag = 0, cancer_flag = 0)
