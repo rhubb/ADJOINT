@@ -4,7 +4,7 @@
 ## This file calculates summary statistics and outputs values for simulation inputs based on analysis of BCSC data
 ## Note that this file requires raw BCSC data (available by request only) to run
 ##
-## Last updated: 3/15/23
+## Last updated: 3/16/23
 
 
 ## ----------------------------------------------------------------------------
@@ -221,7 +221,7 @@ roc_sensmod <- roc(sensmod$y, sensmod$fitted.values)
 auc_sensmod <- auc(roc_sensmod)
 #auc_sensmod
 #Area under the curve: 0.8361
-
+sensmod$coef[1] <- -5 # manually adjust intercept to provide more realistic sensitivity estimates
 write.csv(sensmod$coef,here("inputs","sensmodcoef.csv"), row.names = F)
 
 # Specificity - positive mammogram & no cancer 

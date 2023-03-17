@@ -4,7 +4,7 @@
 ## This file runs surveillance mammography simulations and outputs csv files of simulation results and pdf figures
 ## appearing in the manuscript
 ##
-## Last updated: 3/15/23
+## Last updated: 3/16/23
 
 library(truncnorm)
 library(dplyr)
@@ -144,19 +144,19 @@ dev.off()
 
 pdf(here("results","sensitivity threshold.pdf"), height = 10, width = 10)
 par(mfrow = c(3,2), mai = c(0.6, 0.4, 0.2, 0.1))
-boxplot(model1$LOWSENS, main = "(A) No Race Differences",ylim=c(0,0.7))
-boxplot(model2$LOWSENS, main = "(B) Cancer Varies by Race",ylim=c(0,0.7))
-boxplot(model3$LOWSENS, main = "(C) SDOH Varies by Race",ylim=c(0,0.7))
-boxplot(model4$LOWSENS, main = "(D) SDOH and Cancer Vary by Race",ylim=c(0,0.7))
-boxplot(model5$LOWSENS, main = "(E) Differential Outcome Misclassification by Race",ylim=c(0,0.7))
+boxplot(model1$LOWSENS, main = "(A) No Race Differences",ylim=c(0,0.5))
+boxplot(model2$LOWSENS, main = "(B) Cancer Varies by Race",ylim=c(0,0.5))
+boxplot(model3$LOWSENS, main = "(C) SDOH Varies by Race",ylim=c(0,0.5))
+boxplot(model4$LOWSENS, main = "(D) SDOH and Cancer Vary by Race",ylim=c(0,0.5))
+boxplot(model5$LOWSENS, main = "(E) Differential Outcome Misclassification by Race",ylim=c(0,0.5))
 dev.off()
 
 pdf(here("results","risk threshold.pdf"), height = 10, width = 10)
 par(mfrow = c(3,2), mai = c(0.6, 0.4, 0.2, 0.1))
-boxplot(model1$HIGHRISK, main = "(A) No Race Differences",ylim=c(0,0.3))
-boxplot(model2$HIGHRISK, main = "(B) Cancer Varies by Race",ylim=c(0,0.3))
-boxplot(model3$HIGHRISK, main = "(C) SDOH Varies by Race",ylim=c(0,0.3))
-boxplot(model4$HIGHRISK, main = "(D) SDOH and Cancer Vary by Race",ylim=c(0,0.3))
-boxplot(model5$HIGHRISK, main = "(E) Differential Outcome Misclassification by Race",ylim=c(0,0.3))
+boxplot(model1$HIGHRISK, main = "(A) No Race Differences",ylim=c(0,0.2))
+boxplot(model2$HIGHRISK, main = "(B) Cancer Varies by Race",ylim=c(0,0.2))
+boxplot(model3$HIGHRISK, main = "(C) SDOH Varies by Race",ylim=c(0,0.2))
+boxplot(model4$HIGHRISK, main = "(D) SDOH and Cancer Vary by Race",ylim=c(0,0.2))
+boxplot(model5$HIGHRISK, main = "(E) Differential Outcome Misclassification by Race",ylim=c(0,0.2))
 dev.off()
 
