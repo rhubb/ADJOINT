@@ -25,7 +25,7 @@ ab505$dxage  <- as.double(substr(ab505$dxage,1,2)) # truncate age at 90
 ab505$geo_income  <- ab505$geo_income_med_2010_ACS/10000 # rescale to stabilize OR
 ab505$regscreen <- 1*(ab505$lmamintmo <15)
 ab505$invasive <- ab505$catype1-1 # recode to 1 = invasive, 0 = DCIS
-ab505$erplus1 <- ifelse(ab505$erplus1 %in% c(1,2),0,1) #1 = ER+, 0 = ER-
+ab505$erplus1 <- ifelse(ab505$erplus1 %in% c(1,2),0,1) #1 = ER+ or unknown, 0 = ER-
 ab505$srgrt1 <- ifelse(ab505$srgrt1 %in% c(3),1,ab505$srgrt1) 
 ab505$srgrt1 <- ifelse(ab505$srgrt1 %in% c(4,5),3,ab505$srgrt1) 
                       #1 = (BCS wo or unknown RT), 2 = (BCS w RT), 3 = (mastectomy)
