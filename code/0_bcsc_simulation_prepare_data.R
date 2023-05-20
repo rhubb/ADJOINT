@@ -12,7 +12,7 @@
 ## ----------------------------------------------------------------------------
 
 ## read in csv data
-ab505 <- read.csv("/Users/rhubb/Library/CloudStorage/Box-Box/to do/ADJOINT/data/ADJOINT_BCSC_data.csv")
+ab505 <- read.csv("ADJOINT_BCSC_data.csv")
 colnames(ab505)[1] <- "catype1"
 ab505 <- ab505[!is.na(ab505$caraceeth),] # exclude subjects with missing race
 colnames(ab505)[c(5,12,14,15,21)] <-c('her1', 'adjthrpy','bmi','density',
