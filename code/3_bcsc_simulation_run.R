@@ -4,7 +4,7 @@
 ## This file runs surveillance mammography simulations and outputs csv files of simulation results and pdf figures
 ## appearing in the manuscript
 ##
-## Last updated: 3/16/23
+## Last updated: 5/19/23
 
 library(truncnorm)
 library(dplyr)
@@ -12,6 +12,7 @@ library(ggplot2)
 library(tidyr)
 library(here)
 library(xtable)
+library(caret)
 library(pROC)
 
 source(here("code","0_bcsc_simulation_prepare_data.R"))
@@ -76,6 +77,16 @@ mean.fn       <- rbind(meanres(model1$FN),meanres(model2$FN),meanres(model3$FN),
 mean.fp       <- rbind(meanres(model1$FP),meanres(model2$FP),meanres(model3$FP),meanres(model4$FP),meanres(model5$FP))
 mean.highrisk <- rbind(meanres(model1$HIGHRISK),meanres(model2$HIGHRISK),meanres(model3$HIGHRISK),meanres(model4$HIGHRISK),meanres(model5$HIGHRISK))
 mean.lowsens  <- rbind(meanres(model1$LOWSENS),meanres(model2$LOWSENS),meanres(model3$LOWSENS),meanres(model4$LOWSENS),meanres(model5$LOWSENS))
+
+write.csv(mean.sens,here("results","meansens.csv"),row.names = F)
+write.csv(mean.cdr,here("results","meancdr.csv"),row.names = F)
+write.csv(mean.ppv,here("results","meanppv.csv"),row.names = F)
+write.csv(mean.recall,here("results","meanrecall.csv"),row.names = F)
+write.csv(mean.canc,here("results","meancanc.csv"),row.names = F)
+write.csv(mean.fn,here("results","meanfn.csv"),row.names = F)
+write.csv(mean.fp,here("results","meanfp.csv"),row.names = F)
+write.csv(mean.highrisk,here("results","meanhighrisk.csv"),row.names = F)
+write.csv(mean.lowsens,here("results","meanlowsens.csv"),row.names = F)
 
 ## Output manuscript figures
 

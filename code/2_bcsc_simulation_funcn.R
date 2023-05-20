@@ -3,7 +3,7 @@
 ##
 ## This file provides the simulation functions that generate simulated data for surveillance mammography cohort
 ##
-## Last updated: 3/15/23
+## Last updated: 5/19/23
 
 ## ----------------------------------------------------------------------------
 # Function to iterate Nsim replicates of simulation
@@ -232,7 +232,7 @@ bc_simulation <- function(n, i, sdoh_flag, cancer_flag, obscancprob) {
   if (nrow(data_posmamm)> 0){ # only run if non-zero number of cancers
     new_posmamm <- as.matrix(cbind(1,data_posmamm$dxage, data_posmamm$yrsincdx, data_posmamm$bmi,
                                    data_posmamm$density[,-1], data_posmamm$geo_income, data_posmamm$regscreen,
-                                   data_posmamm$erplus1,data_posmamm$her1, data_posmamm$srgrt1[,-1],
+                                   data_posmamm$erplus1,data_posmamm$her1,data_posmamm$srgrt1[,-1],
                                    data_posmamm$adjthrpy,data_posmamm$educat[,-1],data_posmamm$mod1cat[,-1]))
     co <- c(sensmodcoef)$x
     sensmod_p <- c(co%*%t(new_posmamm))
@@ -256,7 +256,7 @@ bc_simulation <- function(n, i, sdoh_flag, cancer_flag, obscancprob) {
   co <- c(sensmodcoef)$x
   allpred <- as.matrix(cbind(1,df$dxage, df$yrsincdx, df$bmi,
                              df$density[,-1], df$geo_income, df$regscreen,
-                             df$erplus1,df$her1, df$srgrt1[,-1],
+                             df$erplus1, df$her1, df$srgrt1[,-1],
                              df$adjthrpy,df$educat[,-1],df$mod1cat[,-1]))
   sensmod_p <- c(co%*%t(allpred))
   df$pos_prob <- exp(sensmod_p)/(1+exp(sensmod_p)) 

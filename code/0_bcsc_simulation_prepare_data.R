@@ -4,7 +4,7 @@
 ## This file calculates summary statistics and outputs values for simulation inputs based on analysis of BCSC data
 ## Note that this file requires raw BCSC data (available by request only) to run
 ##
-## Last updated: 3/16/23
+## Last updated: 5/19/23
 
 
 ## ----------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 ## ----------------------------------------------------------------------------
 
 ## read in csv data
-ab505 <- read.csv("/Users/rebeccahubbard/Box/to do/ADJOINT/data/ADJOINT_BCSC_data.csv")
+ab505 <- read.csv("/Users/rhubb/Library/CloudStorage/Box-Box/to do/ADJOINT/data/ADJOINT_BCSC_data.csv")
 colnames(ab505)[1] <- "catype1"
 ab505 <- ab505[!is.na(ab505$caraceeth),] # exclude subjects with missing race
 colnames(ab505)[c(5,12,14,15,21)] <-c('her1', 'adjthrpy','bmi','density',
@@ -51,7 +51,6 @@ ab505$lmamintcat <- cut(ab505$lmamintmo, right = FALSE,
                        breaks=c(-Inf, 12,24,36, Inf), 
                        labels=c("<12","12-23","24-35",">35"))
 ab505$mod1cat <- ifelse(ab505$mod1_c %in% c(2,4),2,ifelse(ab505$mod1_c %in% c(3,5),3,ab505$mod1_c))
-ab505$educat
 ab505$invasiveY <- ifelse(ab505$invasive == 1, "Yes","No")
 ab505$erplus1Y <- ifelse(ab505$erplus1 == 1, "Positive","Negative")
 ab505$her1Y <- ifelse(ab505$her1 == 1, "Positive","Negative")
@@ -196,6 +195,33 @@ write.csv(do.call(rbind,tapply(ab505$adjthrpy,ab505$caraceeth,table)),here("inpu
 ## ----------------------------------------------------------------------------
 
 # Cancer risk model
+ctrl <- trainControl(method = "cv",  # Cross-validation method (e.g., "cv", "repeatedcv")
+                     number = 10,    # Number of folds
+                     classProbs = TRUE,  # Preserve class probabilities for AUC calculation
+                     summaryFunction = twoClassSummary)  # AUC summary function
+
+# Train the logistic regression model
+ab505canc.dat <- ab505[,c("seccancfu1yr_cutoff_c","dxage", "yrsincdx", "bmi", 
+                          "density", "geo_income", "regscreen", "stage", 
+                          "erplus1", "her1", "srgrt1", "adjthrpy", "educat", 
+                          "mod1cat")]
+ab505canc.dat <- na.omit(ab505canc.dat)
+ab505canc.dat$seccancfu1yr_cutoff_c <- factor(ab505canc.dat$seccancfu1yr_cutoff_c, labels = c("No","Yes"))
+
+cancmod <- train(seccancfu1yr_cutoff_c ~  dxage + yrsincdx + bmi + 
+                 factor(density) + geo_income + regscreen + factor(stage) + 
+                 erplus1 + her1 + factor(srgrt1) + adjthrpy + factor(educat) +
+                 factor(mod1cat),           
+               data = ab505canc.dat,      
+               method = "glm",      # Use "glm" for logistic regression
+               trControl = ctrl,    # Cross-validation control
+               metric = "ROC")      # Performance metric (e.g., "Accuracy", "ROC")
+
+# Compute the cross-validated AUC
+auc_cancmodcv <- cancmod$results$ROC
+#> auc_cancmodcv
+#[1] 0.6242052
+
 cancmod <- glm(seccancfu1yr_cutoff_c ~  dxage + yrsincdx + bmi + 
                  factor(density) + geo_income + regscreen + factor(stage) + 
                  erplus1 + her1 + factor(srgrt1) + adjthrpy + factor(educat) +
@@ -208,10 +234,39 @@ auc_cancmod <- auc(roc_cancmod)
 #auc(roc_cancmod)
 #Area under the curve: 0.7009
 
+cancmod$coef[1] <- -6.92 # manually adjust intercept to calibrate cancer rate
 write.csv(cancmod$coef,here("inputs","cancmodcoef.csv"), row.names = F)
 
 # Sensitivity - positive mammogram & cancer
-sensmod <- glm(posmam ~  dxage + yrsincdx + bmi + 
+# Cancer risk model
+ctrl <- trainControl(method = "cv",  # Cross-validation method (e.g., "cv", "repeatedcv")
+                     number = 10,    # Number of folds
+                     classProbs = TRUE,  # Preserve class probabilities for AUC calculation
+                     summaryFunction = twoClassSummary)  # AUC summary function
+
+# Train the logistic regression model
+ab505sens.dat <- ab505[ab505$seccancfu1yr_cutoff_c == 1,c("posmam","dxage", "yrsincdx", 
+                          "density", "geo_income", "regscreen", "bmi",
+                          "erplus1", "her1","srgrt1", "adjthrpy", "educat", 
+                          "mod1cat")]
+ab505sens.dat <- na.omit(ab505sens.dat)
+ab505sens.dat$posmam <- factor(ab505sens.dat$posmam, labels = c("No","Yes"))
+
+sensmod <- train(posmam ~  dxage + yrsincdx + bmi +
+                   factor(density) + geo_income + regscreen + 
+                   erplus1 + her1 + factor(srgrt1) + adjthrpy + factor(educat) +
+                   factor(mod1cat),           
+                 data = ab505sens.dat,        
+                 method = "glm",      # Use "glm" for logistic regression
+                 trControl = ctrl,    # Cross-validation control
+                 metric = "ROC")      # Performance metric (e.g., "Accuracy", "ROC")
+
+# Compute the cross-validated AUC
+auc_sensmodcv <- sensmod$results$ROC
+#> auc_sensmodcv
+#[1] 0.6591667
+
+sensmod <- glm(posmam ~  dxage + yrsincdx + bmi +
                  factor(density) + geo_income + regscreen  + 
                  erplus1 + her1 + factor(srgrt1) + adjthrpy + factor(educat)+
                  factor(mod1cat), family = "binomial",
@@ -221,7 +276,8 @@ roc_sensmod <- roc(sensmod$y, sensmod$fitted.values)
 auc_sensmod <- auc(roc_sensmod)
 #auc_sensmod
 #Area under the curve: 0.8361
-sensmod$coef[1] <- -5 # manually adjust intercept to provide more realistic sensitivity estimates
+
+sensmod$coef[1] <- -5.1 # manually adjust intercept to calibrate sensitivity
 write.csv(sensmod$coef,here("inputs","sensmodcoef.csv"), row.names = F)
 
 # Specificity - positive mammogram & no cancer 
@@ -231,11 +287,15 @@ specmod <- glm(posmam ~  dxage + yrsincdx + bmi +
                  factor(mod1cat), family = "binomial",
                data = ab505[ab505$seccancfu1yr_cutoff_c == 0,])
 
+specmod$coef[1] <- -3.3 # manually adjust intercept to calibrate specificity
 write.csv(specmod$coef,here("inputs","specmodcoef.csv"), row.names = F)
 
 ## Output table of regression coefficients for paper supplement
 stage_ind <- which(regexpr("stage",names(coef(cancmod)))>0)[1]
-sens_coef_wstage <- c(round(coef(sensmod)[1:(stage_ind-1)],3),rep("NA",3),round(coef(sensmod)[stage_ind:length(coef(sensmod))],3))
+bmi_ind   <- which(regexpr("bmi",names(coef(cancmod)))>0)[1]
+her1_ind   <- which(regexpr("her1",names(coef(cancmod)))>0)[1]
+sens_coef_wstage <- c(round(coef(sensmod)[1:(stage_ind-1)],3),rep("NA",3),
+                      round(coef(sensmod)[(stage_ind):length(coef(sensmod))],3))
 coef.tab <- cbind(round(coef(cancmod),3),sens_coef_wstage)
 row.names(coef.tab) <- c("Intercept","Age at diagnosis (years)", "Time since diagnosis (years)",
                          "BMI (kg/m$^2$)", "B: scattered areas of fibroglandular density",
